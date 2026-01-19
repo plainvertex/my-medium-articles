@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Reinventing Linear Algebra: From Arrows to Axioms</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Reinventing Linear Algebra: From Arrows to Axioms</h1>
+<p class="subtitle">A first-principles guide to understanding vector
+spaces without rote memorization.</p>
+</header>
+<p>In the world of modern Deep Learning, vectors and matrices are
+ubiquitous objects. They are so common that we often compute them
+without a second thought.</p>
+<p>But I often find myself wondering: <strong>How were they originally
+invented?</strong></p>
+<p>Most of us have learned about vectors at least twice in our
+lives.</p>
+<p>The first time was likely in high school physics—the “pragmatic”
+approach. We were told that a vector is simply a coordinate pair (𝑥, 𝑦),
+addition is just adding coordinates, and everything obeys the
+Parallelogram Law. Position, velocity, and force are all vectors. What
+followed was often a haze of calculation. Yet, two questions always
+nagged at me:</p>
+<ol type="1">
+<li>Why does the physical act of combining arrows translate exactly to
+the cold arithmetic of adding coordinates?</li>
+<li>Why are distinct concepts like position, velocity, and force all
+represented by the same object?</li>
+</ol>
+<p>The second time was in college Linear Algebra—the “abstract”
+approach. Modern textbooks tend to favor “axiomatic definitions.” They
+immediately throw a definition at you: <em>“A vector space is a set that
+satisfies these 8 axioms.”</em> Commutativity, associativity,
+distributivity… I was confused again.</p>
+<p><strong>Why?</strong> Why these specific 8 rules? Why not 7, or 9?
+Did mathematicians just make them up? Where is the intuition and
+motivation behind them?</p>
+<p>I dislike arbitrary rules. I prefer to start from the most intuitive
+principles and reason outward, until I realize that—apart from a very
+few core principles—every complex formula and theorem is an inevitable
+consequence.</p>
+<p>Today, let’s try to start from zero. Using minimal geometric
+intuition, we will derive the entire universe of vectors.</p>
+<hr />
+<h2 id="step-1-return-to-geometryvectors-as-displacement">Step 1: Return
+to Geometry—Vectors as Displacement</h2>
+<p>First, let’s throw away all the numbers, coordinates, and axes. Let’s
+return to a blank, pure space. We need one foundational definition.</p>
+<p><strong>Axiom 1: A vector is a quantity with magnitude and direction
+(Displacement).</strong></p>
+<p>Imagine you are walking on a playground. You walk from one point to
+another. This “displacement” is a vector. It has no fixed starting point
+(you can start walking from anywhere); it only describes “how far you
+went and in what direction.”</p>
+<p><strong>Defining Operation: Addition is “Head-to-Tail”.</strong></p>
+<p>Since vectors are displacements, <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bthe%20most%20natural%20meaning%20of%20%7D%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%5Ctext%7B%20is%3A%20%2A%2AWalk%20along%20%7D%5Cvec%7Ba%7D%5Ctext%7B%20first%2C%20and%20then%20from%20that%20endpoint%2C%20walk%20along%20%7D%5Cvec%7Bb%7D%5Ctext%7B.%20Your%20total%20displacement%20is%20the%20sum.%2A%2A%7D"
+alt="\text{the most natural meaning of }\vec{a} + \vec{b}\text{ is: **Walk along }\vec{a}\text{ first, and then from that endpoint, walk along }\vec{b}\text{. Your total displacement is the sum.**}"
+title="\text{the most natural meaning of }\vec{a} + \vec{b}\text{ is: **Walk along }\vec{a}\text{ first, and then from that endpoint, walk along }\vec{b}\text{. Your total displacement is the sum.**}"
+class="math inline" /></p>
+<p>That’s it. Based solely on this definition, we can uncover some
+amazing properties in this purely geometric world.</p>
+<h3 id="the-geometric-inevitability-of-commutativity">1. The Geometric
+Inevitability of Commutativity</h3>
+<p>Without a diagram, who could confidently say that <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bwalking%20%7D%5Cvec%7Ba%7D%5Ctext%7B%20then%20%7D%5Cvec%7Bb%7D%5Ctext%7B%20gets%20you%20to%20the%20same%20spot%20as%20walking%20%7D%5Cvec%7Bb%7D%5Ctext%7B%20then%20%7D%5Cvec%7Ba%7D"
+alt="\text{walking }\vec{a}\text{ then }\vec{b}\text{ gets you to the same spot as walking }\vec{b}\text{ then }\vec{a}"
+title="\text{walking }\vec{a}\text{ then }\vec{b}\text{ gets you to the same spot as walking }\vec{b}\text{ then }\vec{a}"
+class="math inline" />? But when we draw it, a miracle happens. <img
+src="./media/Attachments/Pasted image 20260103234112.png"
+title="wikilink"
+alt="Attachments/Pasted image 20260103234112.png" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%5Ctext%7B%20represents%20starting%20at%20A%2C%20going%20through%20B%2C%20and%20ending%20at%20C.%7D"
+alt="\vec{a} + \vec{b}\text{ represents starting at A, going through B, and ending at C.}"
+title="\vec{a} + \vec{b}\text{ represents starting at A, going through B, and ending at C.}"
+class="math inline" /> Let’s try the reverse:</p>
+<ul>
+<li><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BShift%20vector%20%7D%5Cvec%7Bb%7D%20%3D%20%5Cvec%7BBC%7D%5Ctext%7B%20so%20it%20starts%20at%20point%20A.%20We%20get%20%7D%5Cvec%7BAD%7D%20%3D%20%5Cvec%7Bb%7D."
+alt="\text{Shift vector }\vec{b} = \vec{BC}\text{ so it starts at point A. We get }\vec{AD} = \vec{b}."
+title="\text{Shift vector }\vec{b} = \vec{BC}\text{ so it starts at point A. We get }\vec{AD} = \vec{b}."
+class="math inline" /></li>
+<li>Connect D and C.</li>
+</ul>
+<p>According to Euclidean geometry, since quadrilateral ABCD has a pair
+of opposite sides parallel and equal, it is a parallelogram. Therefore,
+the segment DC is also parallel and equal to AB <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7B%28%7D%5Cvec%7Ba%7D%5Ctext%7B%29%7D"
+alt="\text{(}\vec{a}\text{)}" title="\text{(}\vec{a}\text{)}"
+class="math inline" />.</p>
+<p>Both paths <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7B%28%7D%5Cvec%7Ba%7D%20%5Cto%20%5Cvec%7Bb%7D%5Ctext%7B%20and%20%7D%5Cvec%7Bb%7D%20%5Cto%20%5Cvec%7Ba%7D%5Ctext%7B%29%7D"
+alt="\text{(}\vec{a} \to \vec{b}\text{ and }\vec{b} \to \vec{a}\text{)}"
+title="\text{(}\vec{a} \to \vec{b}\text{ and }\vec{b} \to \vec{a}\text{)}"
+class="math inline" /> lead from A to C. Thus, <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%2B%5Cvec%7Bb%7D%20%3D%20%5Cvec%7Bb%7D%20%2B%20%5Cvec%7Ba%7D%5Ctext%7B%20is%20not%20a%20rule%20we%20made%20up%3B%20it%20is%20%2A%2Ageometrically%20determined.%2A%2A%7D"
+alt="\vec{a}+\vec{b} = \vec{b} + \vec{a}\text{ is not a rule we made up; it is **geometrically determined.**}"
+title="\vec{a}+\vec{b} = \vec{b} + \vec{a}\text{ is not a rule we made up; it is **geometrically determined.**}"
+class="math inline" /></p>
+<h3 id="the-geometric-inevitability-of-associativity">2. The Geometric
+Inevitability of Associativity</h3>
+<p>What about adding three vectors? Suppose we have four points A, B, C,
+D in space. <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BVector%20%7D%5Cvec%7BAD%7D%5Ctext%7B%20represents%20the%20total%20displacement%20from%20A%20to%20D%2C%20which%20equals%20%7D%5Cvec%7BAB%7D%20%2B%20%5Cvec%7BBC%7D%20%2B%20%5Cvec%7BCD%7D."
+alt="\text{Vector }\vec{AD}\text{ represents the total displacement from A to D, which equals }\vec{AB} + \vec{BC} + \vec{CD}."
+title="\text{Vector }\vec{AD}\text{ represents the total displacement from A to D, which equals }\vec{AB} + \vec{BC} + \vec{CD}."
+class="math inline" /></p>
+<p>To plan this journey, we have two strategies:</p>
+<figure>
+<img src="./media/Attachments/Pasted image 20260103221332.png"
+title="wikilink" alt="Attachments/Pasted image 20260103221332.png" />
+<figcaption aria-hidden="true">Attachments/Pasted image
+20260103221332.png</figcaption>
+</figure>
+<ol type="1">
+<li>Resolve the first two steps (A to C) first, then take the final
+step: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%28%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%29%20%2B%20%5Cvec%7Bc%7D"
+alt="(\vec{a} + \vec{b}) + \vec{c}"
+title="(\vec{a} + \vec{b}) + \vec{c}" class="math inline" /></li>
+<li>Leave the first step for a moment, resolve the last two steps (B to
+D), and then go from A: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%2B%20%28%5Cvec%7Bb%7D%20%2B%20%5Cvec%7Bc%7D%29"
+alt="\vec{a} + (\vec{b} + \vec{c})"
+title="\vec{a} + (\vec{b} + \vec{c})" class="math inline" /></li>
+</ol>
+<p>Obviously, no matter how you group the “legs” of the trip, as long as
+the start and end points remain the same, the total displacement is
+unchanged.</p>
+<p>This proves the associative law: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%28%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%29%20%2B%20%5Cvec%7Bc%7D%20%3D%20%5Cvec%7Ba%7D%20%2B%20%28%5Cvec%7Bb%7D%20%2B%20%5Cvec%7Bc%7D%29"
+alt="(\vec{a} + \vec{b}) + \vec{c} = \vec{a} + (\vec{b} + \vec{c})"
+title="(\vec{a} + \vec{b}) + \vec{c} = \vec{a} + (\vec{b} + \vec{c})"
+class="math inline" />. <strong>Note: Up to this point, we are purely
+geometric. No numbers have been introduced.</strong></p>
+<hr />
+<h2 id="step-2-introducing-numbersscaling">Step 2: Introducing
+Numbers—Scaling</h2>
+<p>Now, let’s compare two vectors pointing in the same direction. We
+notice that a long vector can be seen as a “magnification” or
+“reduction” of a short vector.</p>
+<p>For this, we introduce our first operation involving numbers.</p>
+<p><strong>Definition: Scalar Multiplication.</strong></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20k%20%5Cvec%7Ba%7D%5Ctext%7B%20means%20scaling%20the%20length%20of%20vector%20%7D%5Cvec%7Ba%7D%5Ctext%7B%20by%20a%20factor%20of%20%7Dk%5Ctext%7B%20%28keeping%20the%20direction%20unchanged%3B%20we%20won%27t%20discuss%20reversing%20direction%20for%20now%29.%7D"
+alt="k \vec{a}\text{ means scaling the length of vector }\vec{a}\text{ by a factor of }k\text{ (keeping the direction unchanged; we won&#39;t discuss reversing direction for now).}"
+title="k \vec{a}\text{ means scaling the length of vector }\vec{a}\text{ by a factor of }k\text{ (keeping the direction unchanged; we won&#39;t discuss reversing direction for now).}"
+class="math inline" /></p>
+<h3 id="the-geometric-inevitability-of-distributivity">1. The Geometric
+Inevitability of Distributivity</h3>
+<p>With addition and scalar multiplication, can we prove the
+<strong>Distributive Law</strong>? That is, <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20k%28%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%29%20%3D%20k%20%5Cvec%7Ba%7D%20%2B%20k%20%5Cvec%7Bb%7D"
+alt="k(\vec{a} + \vec{b}) = k \vec{a} + k \vec{b}"
+title="k(\vec{a} + \vec{b}) = k \vec{a} + k \vec{b}"
+class="math inline" />. This looks like an algebraic rule, but
+geometrically, it is the embodiment of <strong>Similar
+Triangles</strong>.</p>
+<p>Look at the diagram below. <img
+src="./media/Attachments/Pasted image 20260103221202.png"
+title="wikilink"
+alt="Attachments/Pasted image 20260103221202.png" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BAssume%20%7D%5Cvec%7Bc%7D%20%3D%20%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%5Ctext%7B%20%28which%20is%20%7D%5Cvec%7BAC%7D%5Ctext%7B%29%7D."
+alt="\text{Assume }\vec{c} = \vec{a} + \vec{b}\text{ (which is }\vec{AC}\text{)}."
+title="\text{Assume }\vec{c} = \vec{a} + \vec{b}\text{ (which is }\vec{AC}\text{)}."
+class="math inline" /> <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BWe%20scale%20the%20entire%20path%20by%20%7Dk%5Ctext%7B%20to%20get%20%7D%5Cvec%7BAE%7D."
+alt="\text{We scale the entire path by }k\text{ to get }\vec{AE}."
+title="\text{We scale the entire path by }k\text{ to get }\vec{AE}."
+class="math inline" /> By the properties of similar triangles (ΔABC ∼
+ΔADE): <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bif%20the%20hypotenuse%20%7D%5Cvec%7BAC%7D%5Ctext%7B%20is%20scaled%20by%20%7Dk%5Ctext%7B%2C%20then%20the%20corresponding%20legs%20%7D%5Cvec%7BAB%7D%5Ctext%7B%20and%20%7D%5Cvec%7BBC%7D%5Ctext%7B%20must%20also%20be%20scaled%20by%20%7Dk."
+alt="\text{if the hypotenuse }\vec{AC}\text{ is scaled by }k\text{, then the corresponding legs }\vec{AB}\text{ and }\vec{BC}\text{ must also be scaled by }k."
+title="\text{if the hypotenuse }\vec{AC}\text{ is scaled by }k\text{, then the corresponding legs }\vec{AB}\text{ and }\vec{BC}\text{ must also be scaled by }k."
+class="math inline" /></p>
+<p>In other words, <strong>“Add then Scale”</strong> (completing the
+journey then magnifying the map) is equivalent to <strong>“Scale then
+Add”</strong> (magnifying each step then walking). <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BThus%2C%20we%20have%20proven%20%7Dk%28%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%29%20%3D%20k%20%5Cvec%7Ba%7D%20%2B%20k%20%5Cvec%7Bb%7D."
+alt="\text{Thus, we have proven }k(\vec{a} + \vec{b}) = k \vec{a} + k \vec{b}."
+title="\text{Thus, we have proven }k(\vec{a} + \vec{b}) = k \vec{a} + k \vec{b}."
+class="math inline" /></p>
+<h3 id="the-geometric-inevitability-of-associativity-scalars">2. The
+Geometric Inevitability of Associativity (Scalars)</h3>
+<p>Consider <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20k_1%28k_2%20%5Cvec%7Ba%7D%29%20%3D%20%28k_1%20k_2%29%20%5Cvec%7Ba%7D"
+alt="k_1(k_2 \vec{a}) = (k_1 k_2) \vec{a}"
+title="k_1(k_2 \vec{a}) = (k_1 k_2) \vec{a}" class="math inline" />.
+This looks trivial, but geometrically, it describes the physical fact of
+<strong>“Continuous Scaling.”</strong></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BImagine%20%7D%5Cvec%7Ba%7D%5Ctext%7B%20is%20an%20infinitely%20stretchable%20rubber%20band.%7D"
+alt="\text{Imagine }\vec{a}\text{ is an infinitely stretchable rubber band.}"
+title="\text{Imagine }\vec{a}\text{ is an infinitely stretchable rubber band.}"
+class="math inline" /></p>
+<ul>
+<li><strong>Left Side</strong> <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20k_1%28k_2%20%5Cvec%7Ba%7D%29%5Ctext%7B%20represents%20two%20operations%3A%7D"
+alt="k_1(k_2 \vec{a})\text{ represents two operations:}"
+title="k_1(k_2 \vec{a})\text{ represents two operations:}"
+class="math inline" />
+<ol type="1">
+<li>Stretch the rubber band to 𝑘₂ times its original length.</li>
+<li>Based on <strong>this new length</strong>, stretch it again by
+𝑘₁.</li>
+</ol></li>
+<li><strong>Right Side</strong> <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%28k_1%20k_2%29%20%5Cvec%7Ba%7D%5Ctext%7B%20represents%20one%20operation%3A%7D"
+alt="(k_1 k_2) \vec{a}\text{ represents one operation:}"
+title="(k_1 k_2) \vec{a}\text{ represents one operation:}"
+class="math inline" />
+<ol type="1">
+<li>Directly stretch the rubber band to (𝑘₁𝑘₂) times its original
+length.</li>
+</ol></li>
+</ul>
+<p>The geometric key is: <strong>Scaling is cumulative.</strong> If you
+zoom in on a map by 2x, and then zoom in on that image by 1.5x, the
+final image is inevitably identical to zooming in by 3x directly. This
+requires no formula derivation; it is an inevitable result defined by
+the operation of <strong>Scaling</strong> itself.</p>
+<hr />
+<h2 id="step-3-bridging-geometry-and-algebrabasis-components">Step 3:
+Bridging Geometry and Algebra—Basis &amp; Components</h2>
+<p>So far, we are still playing with arrows, not 𝑥, 𝑦, 𝑧. Handling
+complex problems with pure geometry is exhausting. We need to convert
+vectors into numbers. To do this, we build a bridge from “Shape” to
+“Number.”</p>
+<h3 id="concept-1-unit-vectors-the-ruler">Concept 1: Unit Vectors (The
+Ruler)</h3>
+<p>Traditional number lines have a “unit length” of 1. In the vector
+world, we introduce <strong>Unit Vectors</strong>. All unit vectors have
+a length of 1. With them, any vector can be expressed as: “A unit vector
+in the same direction” × “Its length.”</p>
+<h3 id="concept-2-basis-standard-decomposition">Concept 2: Basis
+(Standard Decomposition)</h3>
+<p>This is the critical step. We arbitrarily choose two mutually
+perpendicular unit vectors in the plane <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Band%20name%20them%20%7D%5Cvec%7Bi%7D%5Ctext%7B%20%28horizontal%29%20and%20%7D%5Cvec%7Bj%7D%5Ctext%7B%20%28vertical%29.%7D"
+alt="\text{and name them }\vec{i}\text{ (horizontal) and }\vec{j}\text{ (vertical).}"
+title="\text{and name them }\vec{i}\text{ (horizontal) and }\vec{j}\text{ (vertical).}"
+class="math inline" /> This is what modern linear algebra calls a
+<strong>Basis</strong>.</p>
+<p>Based on geometric intuition, <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bany%20vector%20%7D%5Cvec%7Bv%7D%5Ctext%7B%20in%20the%20plane%20can%20be%20decomposed%20into%20the%20sum%20of%20a%20%22horizontal%20component%22%20and%20a%20%22vertical%20component.%22%7D"
+alt="\text{any vector }\vec{v}\text{ in the plane can be decomposed into the sum of a &quot;horizontal component&quot; and a &quot;vertical component.&quot;}"
+title="\text{any vector }\vec{v}\text{ in the plane can be decomposed into the sum of a &quot;horizontal component&quot; and a &quot;vertical component.&quot;}"
+class="math inline" /> Borrowing the concept of scalar
+multiplication:</p>
+<ul>
+<li><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BHorizontal%20component%20%3D%20%7Dx%5Ctext%7B%20times%20%7D%5Cvec%7Bi%7D"
+alt="\text{Horizontal component = }x\text{ times }\vec{i}"
+title="\text{Horizontal component = }x\text{ times }\vec{i}"
+class="math inline" /></li>
+<li><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7BVertical%20component%20%3D%20%7Dy%5Ctext%7B%20times%20%7D%5Cvec%7Bj%7D"
+alt="\text{Vertical component = }y\text{ times }\vec{j}"
+title="\text{Vertical component = }y\text{ times }\vec{j}"
+class="math inline" /></li>
+</ul>
+<p>Finally, any vector can be written in algebraic form:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Cvec%7Bv%7D%20%3D%20x%20%5Cvec%7Bi%7D%20%2B%20y%20%5Cvec%7Bj%7D"
+alt="\vec{v} = x \vec{i} + y \vec{j}"
+title="\vec{v} = x \vec{i} + y \vec{j}" class="math display" /></p>
+<p>For convenience, we extract the coefficients and write them as (𝑥,
+𝑦).</p>
+<p><strong>Note: Strictly speaking, (𝑥, 𝑦) here are called the
+“Components” of the vector, not “Coordinates.”</strong> They represent
+that the displacement is synthesized from “x steps horizontally” and “y
+steps vertically.” They do not represent your specific location in
+space. This is one of the biggest historical distinctions between
+Cartesian coordinates and vector algebra—up to this step, we are still
+dealing with “relative displacement,” not “absolute position.”</p>
+<hr />
+<h2 id="step-4-deriving-algebraic-rules">Step 4: Deriving Algebraic
+Rules</h2>
+<p>Now comes the most exciting part. Is the rule “add vectors by adding
+their components,” which textbooks dictate, really just an arbitrary
+rule? No. It is an <strong>algebraic necessity derived from the
+geometric laws</strong> we just proved.</p>
+<p>Assume two vectors: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%3D%20x_1%20%5Cvec%7Bi%7D%20%2B%20y_1%20%5Cvec%7Bj%7D"
+alt="\vec{a} = x_1 \vec{i} + y_1 \vec{j}"
+title="\vec{a} = x_1 \vec{i} + y_1 \vec{j}" class="math inline" /> <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Bb%7D%20%3D%20x_2%20%5Cvec%7Bi%7D%20%2B%20y_2%20%5Cvec%7Bj%7D"
+alt="\vec{b} = x_2 \vec{i} + y_2 \vec{j}"
+title="\vec{b} = x_2 \vec{i} + y_2 \vec{j}" class="math inline" /></p>
+<p>We want to find <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D"
+alt="\vec{a} + \vec{b}" title="\vec{a} + \vec{b}"
+class="math inline" />. According to the <strong>Associative
+Law</strong> and <strong>Commutative Law</strong> (which we proved
+geometrically in Step 1!), we can regroup <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Bi%7D"
+alt="\vec{i}" title="\vec{i}" class="math inline" /> and <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Bj%7D"
+alt="\vec{j}" title="\vec{j}" class="math inline" />:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Cvec%7Ba%7D%20%2B%20%5Cvec%7Bb%7D%20%3D%20%28x_1%20%5Cvec%7Bi%7D%20%2B%20y_1%20%5Cvec%7Bj%7D%29%20%2B%20%28x_2%20%5Cvec%7Bi%7D%20%2B%20y_2%20%5Cvec%7Bj%7D%29"
+alt="\vec{a} + \vec{b} = (x_1 \vec{i} + y_1 \vec{j}) + (x_2 \vec{i} + y_2 \vec{j})"
+title="\vec{a} + \vec{b} = (x_1 \vec{i} + y_1 \vec{j}) + (x_2 \vec{i} + y_2 \vec{j})"
+class="math display" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%3D%20%28x_1%20%5Cvec%7Bi%7D%20%2B%20x_2%20%5Cvec%7Bi%7D%29%20%2B%20%28y_1%20%5Cvec%7Bj%7D%20%2B%20y_2%20%5Cvec%7Bj%7D%29"
+alt="= (x_1 \vec{i} + x_2 \vec{i}) + (y_1 \vec{j} + y_2 \vec{j})"
+title="= (x_1 \vec{i} + x_2 \vec{i}) + (y_1 \vec{j} + y_2 \vec{j})"
+class="math display" /></p>
+<p>Next, according to the <strong>Distributive Law</strong> (which we
+proved with similar triangles in Step 2!), we can factor out the
+terms:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%3D%20%28x_1%20%2B%20x_2%29%5Cvec%7Bi%7D%20%2B%20%28y_1%20%2B%20y_2%29%5Cvec%7Bj%7D"
+alt="= (x_1 + x_2)\vec{i} + (y_1 + y_2)\vec{j}"
+title="= (x_1 + x_2)\vec{i} + (y_1 + y_2)\vec{j}"
+class="math display" /></p>
+<p>Look! The new horizontal component naturally becomes (𝑥₁+𝑥₂), and the
+vertical component becomes (𝑦₁+𝑦₂).</p>
+<p><strong>Conclusion:</strong> We don’t need to <em>make up</em> a rule
+that says “vector addition is component addition.” As long as we admit
+the geometric “Parallelogram Law” and “Similar Triangles,”
+component-wise addition is a result that <strong>has to be
+true.</strong></p>
+<p>Similarly, for scalar multiplication <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20k%5Cvec%7Ba%7D"
+alt="k\vec{a}" title="k\vec{a}" class="math inline" />:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20k%20%5Cvec%7Ba%7D%20%3D%20%20k%28x%20%5Cvec%7Bi%7D%20%2B%20y%20%5Cvec%7Bj%7D%29"
+alt="k \vec{a} =  k(x \vec{i} + y \vec{j})"
+title="k \vec{a} =  k(x \vec{i} + y \vec{j})"
+class="math display" /></p>
+<p>By the <strong>Distributive Law</strong>:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%3D%20k%28x%20%5Cvec%7Bi%7D%29%20%2B%20k%28y%20%5Cvec%7Bj%7D%29"
+alt="= k(x \vec{i}) + k(y \vec{j})"
+title="= k(x \vec{i}) + k(y \vec{j})" class="math display" /></p>
+<p>And finally, by the <strong>Associative Law</strong>:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%3D%20%28kx%29%5Cvec%7Bi%7D%20%2B%20%28ky%29%5Cvec%7Bj%7D"
+alt="= (kx)\vec{i} + (ky)\vec{j}" title="= (kx)\vec{i} + (ky)\vec{j}"
+class="math display" /></p>
+<p>This derives the component rule for scalar multiplication: 𝑘(𝑥, 𝑦) =
+(𝑘𝑥, 𝑘𝑦). We have successfully converted geometric drawing tasks
+entirely into simple algebraic arithmetic.</p>
+<hr />
+<h2
+id="step-5-descartes-puzzle-piecefrom-components-to-coordinates">Step 5:
+Descartes’ Puzzle Piece—From “Components” to “Coordinates”</h2>
+<p>Are we done? There is one final piece of the puzzle. The vectors
+discussed so far are “free vectors” (displacement)—they have no fixed
+location. But in real life, we often want to describe a specific
+<strong>location</strong> in space.</p>
+<p>This is where we introduce the grandfather of
+coordinates—<strong>Descartes</strong>. He introduced the anchor: the
+<strong>Origin</strong>.</p>
+<ul>
+<li><strong>Free Vector</strong> (Arrow): Describes “how to move”
+(Displacement).</li>
+<li><strong>Position</strong> (Point): Describes “where you are.”</li>
+</ul>
+<p>Descartes realized that we can use “displacement” to define
+“position.” We define a point in space as the Origin 𝑂. Now, any point 𝑃
+in space is uniquely determined by the <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bvector%20pointing%20from%20O%20to%20P%20%28%7D%5Cvec%7BOP%7D%5Ctext%7B%29%7D."
+alt="\text{vector pointing from O to P (}\vec{OP}\text{)}."
+title="\text{vector pointing from O to P (}\vec{OP}\text{)}."
+class="math inline" /> This is called a <strong>Position
+Vector</strong>.</p>
+<p>When we decompose <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7BOP%7D%5Ctext%7B%20into%20%7Dx%5Cvec%7Bi%7D%20%2B%20y%5Cvec%7Bj%7D"
+alt="\vec{OP}\text{ into }x\vec{i} + y\vec{j}"
+title="\vec{OP}\text{ into }x\vec{i} + y\vec{j}" class="math inline" />,
+the <strong>components</strong> (𝑥, 𝑦) of the vector instantly gain a
+new identity—they become the <strong>Coordinates</strong> of point
+𝑃.</p>
+<p>With this, we have truly connected algebra and geometry, recreating
+the glory of the <strong>Cartesian Coordinate System</strong>.</p>
+<hr />
+<h2 id="summary-what-did-we-just-reinvent">Summary: What Did We Just
+“Reinvent”?</h2>
+<p>Let’s pause and look at our core assumptions. What did we start
+with?</p>
+<ol type="1">
+<li><strong>Vectors are geometric entities
+(displacements).</strong></li>
+<li><strong>Addition is head-to-tail connection.</strong></li>
+<li><strong>Space is Euclidean (flat, supporting parallel lines and
+similarity).</strong></li>
+</ol>
+<p>Based on these simple assumptions, look at the massive mathematical
+structure we derived:</p>
+<ol type="1">
+<li><p><strong>Geometric Vector Space:</strong> We didn’t need textbook
+rules. Relying only on Euclidean geometry, we established all the laws
+of addition and scalar multiplication (Commutativity, Associativity,
+Distributivity). We proved that <strong>Linear Structure is an intrinsic
+property of flat space, not a human invention.</strong></p></li>
+<li><p><strong>Isomorphism between Algebra and Geometry:</strong> By
+introducing a “Basis,” we found that “arrow splicing” in geometry
+corresponds perfectly to “array addition” in algebra. In mathematics,
+this is called an <strong>Isomorphism</strong>. We successfully
+translated <strong>intuitive shapes</strong> into <strong>precise
+numbers</strong>, marking the birth of <strong>Linear
+Algebra</strong>.</p></li>
+<li><p><strong>Affine Space &amp; Cartesian Coordinates:</strong> In the
+final step, by introducing an “Origin,” we distinguished between “Points
+(Position)” and “Vectors (Displacement),” using vectors to define
+points. Mathematically, this is known as an <strong>Affine
+Space</strong>. We reconstructed Descartes’ wisdom—<strong>Analytic
+Geometry</strong>.</p></li>
+</ol>
+<p><strong>This is the wonder of mathematics.</strong></p>
+<p>We have successfully “algebra-fied” Euclidean geometry.</p>
+<p>What’s even more fascinating is that the Commutative, Associative,
+and Distributive laws we painstakingly derived are exactly the core
+clauses of the 8 Axioms of Linear Space found in modern textbooks.</p>
+<p><strong>This is not a coincidence; it hides a great conceptual leap
+in the history of mathematics.</strong></p>
+<p>You might notice that mathematicians often use the terms “Vector
+Space” and “Linear Space” interchangeably. Why emphasize
+<strong>“Linear”</strong>? Because mathematicians keenly realized that
+the operation laws we just proved essentially describe a profound
+structure called <strong>“Linearity.”</strong> This structure is more
+fundamental than specific “arrows” or “geometric shapes.”</p>
+<p>To capture this essence, modern textbooks perform a bold
+<strong>“Logical Reversal”</strong>:</p>
+<ul>
+<li>In our derivation, we treated <strong>Euclidean Geometry</strong> as
+the axiom and the <strong>Operation Laws</strong> as theorems.</li>
+<li>Modern Linear Algebra elevates the <strong>Operation Laws</strong>
+directly to axioms (those 8 rules), no longer relying on geometric
+intuition.</li>
+</ul>
+<p>The benefit of this is revolutionary. From then on, any
+object—whether it’s a visible arrow, an abstract function, a polynomial,
+a matrix, or even an ethereal wave function in quantum
+mechanics—<strong>as long as its operations satisfy these 8 axioms, it
+can be studied as a Linear Space.</strong></p>
+<p>This means that displacement in flat Euclidean space is merely one
+intuitive <strong>special case</strong> in the vast map of Linear
+Algebra. Through this abstraction, the power of Linear Algebra extends
+into every corner of physics and engineering.</p>
+<p>The cold definitions in textbooks—Vector Space Axioms, Linear
+Transformations, Coordinate Systems—are not arbitrary “game rules” made
+up by mathematicians. On the contrary, they are a <strong>high-purity
+extraction</strong> of the most essential laws of our physical
+world.</p>
+<p>We are not just craftsmen checking manuals; we have just hand-drawn
+the blueprints of the entire building.</p>
+<hr />
+<h2 id="the-final-challenge-handing-the-blueprints-to-you">The Final
+Challenge: Handing the Blueprints to You</h2>
+<p>I don’t want to end this by just lecturing on conclusions. Since you
+have now mastered the “internal art” of deriving algebraic laws from
+geometric intuition, I want to leave you with two fascinating
+problems.</p>
+<p>Try to provide your proofs in the comments. If you get stuck, asking
+an AI is a good option, but please try to derive them yourself
+first.</p>
+<h3 id="challenge-1-the-physics-puzzle">Challenge 1: The Physics
+Puzzle</h3>
+<p>In this article, we proved that “displacement” follows the
+Parallelogram Law. But why are <strong>Velocity</strong>,
+<strong>Acceleration</strong>, and even invisible <strong>Force</strong>
+also vectors? Why are they entitled to be synthesized using the
+Parallelogram Law?</p>
+<p><em>Hint: You can use the definitions of these concepts. While the
+vector nature of force is ultimately an empirical fact in physics, if we
+assume Newton’s Three Laws are the axioms of the universe, can you
+explain why force <strong>must</strong> be a vector?</em></p>
+<h3 id="challenge-2-the-origin-of-the-dot-product">Challenge 2: The
+Origin of the Dot Product</h3>
+<p>High school teachers tell us to memorize two formulas:</p>
+<ol type="1">
+<li>Geometric Definition: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%5Ccdot%20%5Cvec%7Bb%7D%20%3D%20%7C%5Cvec%7Ba%7D%7C%20%7C%5Cvec%7Bb%7D%7C%20%5Ccos%20%5Ctheta"
+alt="\vec{a} \cdot \vec{b} = |\vec{a}| |\vec{b}| \cos \theta"
+title="\vec{a} \cdot \vec{b} = |\vec{a}| |\vec{b}| \cos \theta"
+class="math inline" /></li>
+<li>Algebraic Formula: <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cvec%7Ba%7D%20%5Ccdot%20%5Cvec%7Bb%7D%20%3D%20x_1%20x_2%20%2B%20y_1%20y_2"
+alt="\vec{a} \cdot \vec{b} = x_1 x_2 + y_1 y_2"
+title="\vec{a} \cdot \vec{b} = x_1 x_2 + y_1 y_2"
+class="math inline" /></li>
+</ol>
+<p>Why are they equal? <strong>Please do not use the Law of Cosines to
+brute-force it.</strong> Try to use the <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bconcept%20of%20%2A%2ABasis%2A%2A%20%28%7D%5Cvec%7Bi%7D%2C%20%5Cvec%7Bj%7D%5Ctext%7B%29%20and%20the%20%2A%2ADistributive%20Law%2A%2A%7D"
+alt="\text{concept of **Basis** (}\vec{i}, \vec{j}\text{) and the **Distributive Law**}"
+title="\text{concept of **Basis** (}\vec{i}, \vec{j}\text{) and the **Distributive Law**}"
+class="math inline" /> established in this article. You will find that
+once you choose the right perspective, the algebraic formula is an
+inevitable result of the geometric definition.</p>
+<p><strong>I look forward to seeing your derivations in the
+comments.</strong></p>
+</body>
+</html>
